@@ -53,21 +53,53 @@
 
         .register-btn {
             display: block;
-            width: 200px;
-            margin: 40px auto;
-            padding: 10px 20px;
-            background-color: #121212;
-            color: #f1c40f;
-            text-align: center;
+            width: 150px;
+            height: 50px;
+            border-radius: 10px;
+            border: 1px solid #f1c40f;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s ease-in;
+            z-index: 1;
             text-decoration: none;
-            font-weight: bold;
-            border-radius: 5px;
-            transition: all 0.3s ease;
+            line-height: 50px;
+            text-align: center;
+            color: #f1c40f;  /* Initial text color yellow */
+            font-size: 18px;
+            margin: 40px auto;
+        }
+
+        .register-btn::before,
+        .register-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 0;
+            height: 100%;
+            transform: skew(15deg);
+            transition: all 0.5s;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .register-btn::before {
+            left: -10px;
+            background: #f1c40f;  /* Changed to yellow */
+        }
+
+        .register-btn::after {
+            right: -10px;
+            background: #f1c40f;  /* Changed to yellow */
+        }
+
+        .register-btn:hover::before,
+        .register-btn:hover::after {
+            width: 58%;
         }
 
         .register-btn:hover {
-            background-color: #000;
-            color: #f1c40f;
+            color: #ffffff;  /* Changed to white on hover */
+            text-decoration: none;
             box-shadow: 0 0 20px #f1c40f;
         }
     </style>
@@ -101,7 +133,7 @@
         <div class="container pb-3" style="margin-top:70px;">
             <h2 class="main-heading">OWASP KARE: <span>Euphoria-TechForge</h2>
             <h2 class="main-heading1">Event Description:</h2>
-            <p>This event emphasizes exploring cuttingedge advancements in cybersecurity, ethical hacking, and emerging computer science domains. The expo is the perfect venue to highlight groundbreaking applications in securing our digital future. Whether you’re solving critical cyber challenges or reimagining traditional systems with modern tech, this is your chance to shine.</br>The competition is structured in two progressive rounds:</p>
+            <p>This event emphasizes exploring cuttingedge advancements in cybersecurity, ethical hacking, and emerging computer science domains. The expo is the perfect venue to highlight groundbreaking applications in securing our digital future. Whether you're solving critical cyber challenges or reimagining traditional systems with modern tech, this is your chance to shine.</br>The competition is structured in two progressive rounds:</p>
             <p><span class="main-heading2">Round 1 :</span>The Filtration Round is the initial stage of the Project Expo, evaluating projects for originality, feasibility, and technical foundation.</p>
             <p><span class="main-heading2">Round 2 :</span>The Judgment Round is the grand finale, where external experts evaluate projects based on practical applicability and technical excellence.</p>
             <h2 class="main-heading1">Benefits of Participating:</h2>
