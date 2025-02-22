@@ -13,6 +13,30 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
+        .team-number-display {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #ffff00;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .team-number-display .number {
+            font-size: 4em;
+            color: #ffff00;
+            font-family: 'Orbitron', sans-serif;
+            text-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
+            margin: 10px 0;
+        }
+
+        .team-number-display .label {
+            font-family: 'Share Tech Mono', monospace;
+            color: #ffffff;
+            font-size: 1.2em;
+        }
+
         .status-container {
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(20px);
@@ -23,15 +47,22 @@
             color: #ffffff;
         }
 
+        .details-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
         .team-input {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 0, 0.2);
             color: #ffffff;
             padding: 10px;
             border-radius: 5px;
-            width: 200px;
+            width: 250px;
             font-family: 'Share Tech Mono', monospace;
             margin-right: 10px;
+            transition: all 0.3s ease;
         }
 
         .team-input:focus {
@@ -65,17 +96,29 @@
             padding: 10px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 5px;
+            border: 1px solid rgba(255, 255, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .detail-row:hover {
+            border-color: rgba(255, 255, 0, 0.3);
+            transform: translateY(-2px);
         }
 
         .detail-label {
             color: #ffff00;
             font-family: 'Share Tech Mono', monospace;
             margin-bottom: 5px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .detail-value {
             font-family: 'Share Tech Mono', monospace;
             color: #ffffff;
+            font-size: 1.1em;
+            margin-top: 5px;
         }
 
         .wifi-section {
@@ -83,7 +126,9 @@
             padding: 15px;
             background: rgba(0, 0, 0, 0.4);
             border-radius: 5px;
-            border: 1px solid rgba(255, 255, 0, 0.2);
+            border: 2px solid rgba(255, 255, 0, 0.2);
+            max-width: 400px;
+            margin: 30px auto;
         }
 
         .wifi-credentials {
@@ -110,6 +155,12 @@
             color: #ff4444;
             margin-top: 10px;
             font-family: 'Share Tech Mono', monospace;
+        }
+
+        #teamInputSection {
+            transition: opacity 0.3s ease;
+            text-align: center;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -139,17 +190,18 @@
         <h2 class="main-heading">CRYPTON 2K25 - Registration Status</h2>
         
         <div class="status-container">
+            <div id="teamNumberDisplay" class="team-number-display">
+                <div class="label">TEAM NUMBER</div>
+                <div class="number"></div>
+            </div>
+
             <div id="teamInputSection">
                 <input type="number" id="teamNumber" class="team-input" placeholder="Enter Team Number" min="1">
                 <button id="checkStatus" class="submit-btn">Check Status</button>
                 <div id="errorMessage" class="error-message"></div>
             </div>
 
-            <div id="teamDetails" class="team-details">
-                <div class="detail-row">
-                    <div class="detail-label">Team Number</div>
-                    <div id="displayTeamNumber" class="detail-value"></div>
-                </div>
+            <div id="teamDetails" class="team-details details-container">
                 <div class="detail-row">
                     <div class="detail-label">Team Leader</div>
                     <div id="leaderName" class="detail-value"></div>
@@ -218,6 +270,7 @@
                 if (storedTeam) {
                     document.getElementById('teamNumber').value = storedTeam.teamNumber;
                     document.getElementById('teamNumber').disabled = true;
+                    document.getElementById('teamInputSection').style.display = 'none';
                     fetchTeamDetails(storedTeam.teamNumber);
                 }
             };
@@ -253,7 +306,9 @@
                 }
 
                 // Display team details
-                document.getElementById('displayTeamNumber').textContent = team.teamNumber;
+                document.getElementById('teamNumberDisplay').style.display = 'block';
+                document.getElementById('teamNumberDisplay').querySelector('.number').textContent = team.teamNumber;
+                document.getElementById('teamInputSection').style.display = 'none';
                 document.getElementById('leaderName').textContent = team.leaderName;
                 document.getElementById('regNo').textContent = team.leaderRegNo;
                 document.getElementById('problemStatement').textContent = team.problemStatement;
