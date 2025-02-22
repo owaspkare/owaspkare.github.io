@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRYPTON 2K25 - Team Status</title>
+    <link rel="stylesheet" href="../../owasp3.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        .teams-container {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .category-section {
+            margin-bottom: 30px;
+        }
+
+        .category-title {
+            color: #ffff00;
+            font-family: 'Orbitron', sans-serif;
+            border-bottom: 1px solid rgba(255, 255, 0, 0.3);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .team-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 0, 0.2);
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .team-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 255, 0, 0.1);
+        }
+
+        .team-number {
+            color: #ffff00;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .team-info {
+            color: #ffffff;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .problem-title {
+            color: #ffff00;
+            font-family: 'Orbitron', sans-serif;
+            margin: 5px 0;
+        }
+
+        .registration-time {
+            color: #cccccc;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        #loading {
+            color: #ffff00;
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 50px 0;
+        }
+
+        .search-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 0, 0.2);
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            width: 100%;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #ffff00;
+            box-shadow: 0 0 5px rgba(255, 255, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="https://owasp.org/"><img src="https://owasp.org/assets/images/logo.png" class="club-poster" /></a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/#about-college">Home</a></li>
+                <li><a href="/#club-details">OWASP Club</a></li>
+                <li><a href="/events">Events</a></li>
+                <li><a href="/crypton-2k25">Crypton 2K25</a></li>
+                <li><a href="/Euphoria-2025">Tech Forge</a></li>
+            </ul>
+            <div class="burger">
+                <div class="line1"></div>
+                <div class="line2"></div>
+                <div class="line3"></div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container" style="margin-top: 100px;">
+        <h2 class="main-heading">CRYPTON 2K25 - Registered Teams</h2>
+        
+        <input type="text" class="search-box" id="searchBox" placeholder="Search by team number, name, or problem...">
+        
+        <div id="loading">Loading teams...</div>
+        <div id="teamsContainer" class="teams-container"></div>
+    </div>
+
+    <script>
+        async function fetchTeams() {
+            try {
+                const response = await fetch('https://owaspkare.vercel.app/api/teams');
+                const data = await response.json();
+                
+                if (!data.success) throw new Error('Failed to fetch teams');
+                
+                // Group teams by category
+                const teamsByCategory = data.data.reduce((acc, team) => {
+                    if (!acc[team.category]) {
+                        acc[team.category] = [];
+                    }
+                    acc[team.category].push(team);
+                    return acc;
+                }, {});
+
+                const container = document.getElementById('teamsContainer');
+                document.getElementById('loading').style.display = 'none';
+
+                // Display teams by category
+                Object.entries(teamsByCategory).forEach(([category, teams]) => {
+                    const section = document.createElement('div');
+                    section.className = 'category-section';
+                    section.innerHTML = `
+                        <h3 class="category-title">${category}</h3>
+                        <div class="row">
+                            ${teams.map(team => `
+                                <div class="col-md-6 col-lg-4 team-item">
+                                    <div class="team-card">
+                                        <div class="team-number">Team #${team.teamNumber}</div>
+                                        <div class="team-info">
+                                            <strong>Leader:</strong> ${team.leaderName}<br>
+                                            <strong>Reg No:</strong> ${team.leaderRegNo}
+                                        </div>
+                                        <div class="problem-title">${team.problemStatement}</div>
+                                        <div class="registration-time">${team.registeredAt}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    container.appendChild(section);
+                });
+
+                // Setup search functionality
+                const searchBox = document.getElementById('searchBox');
+                searchBox.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    document.querySelectorAll('.team-item').forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        item.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading').innerHTML = 'Failed to load teams. Please try again later.';
+            }
+        }
+
+        // Mobile menu functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchTeams();
+
+            const burger = document.querySelector('.burger');
+            const nav = document.querySelector('.nav-links');
+            const navLinks = document.querySelectorAll('.nav-links li');
+
+            burger.addEventListener('click', () => {
+                nav.classList.toggle('nav-active');
+                navLinks.forEach((link, index) => {
+                    if (link.style.animation) {
+                        link.style.animation = '';
+                    } else {
+                        link.style.animation = `navLinkFade 0.5s ease forwards ${index / 7 + 0.3}s`;
+                    }
+                });
+                burger.classList.toggle('toggle');
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRYPTON 2K25 - Team Registration</title>
+    <link rel="stylesheet" href="../../owasp3.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        .registration-form {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 0, 0.1);
+            border-radius: 10px;
+            padding: 30px;
+            margin: 20px 0;
+            color: #ffffff;
+        }
+
+        .form-group label {
+            color: #ffff00;
+            font-family: 'Share Tech Mono', monospace;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 0, 0.2);
+            color: #ffffff;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .form-control:focus {
+            background: rgba(0, 0, 0, 0.4);
+            border-color: #ffff00;
+            box-shadow: 0 0 5px rgba(255, 255, 0, 0.3);
+            color: #ffffff;
+        }
+
+        .submit-btn {
+            background: transparent;
+            border: 1px solid #ffff00;
+            color: #ffff00;
+            padding: 10px 30px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-family: 'Share Tech Mono', monospace;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            background: #ffff00;
+            color: #000;
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(255, 255, 0, 0.2);
+            color: #ffff00;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .alert-danger {
+            border-color: rgba(255, 0, 0, 0.2);
+            color: #ff4444;
+        }
+
+        .selected-problem {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 0, 0.2);
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .selected-problem h4 {
+            color: #ffff00;
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: #ffff00;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .submitting .loading-spinner {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="https://owasp.org/"><img src="https://owasp.org/assets/images/logo.png" class="club-poster" /></a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/#about-college">Home</a></li>
+                <li><a href="/#club-details">OWASP Club</a></li>
+                <li><a href="/events">Events</a></li>
+                <li><a href="/crypton-2k25">Crypton 2K25</a></li>
+                <li><a href="/crypton-2k25/teams">View Teams</a></li>
+                <li><a href="/Euphoria-2025">Tech Forge</a></li>
+            </ul>
+            <div class="burger">
+                <div class="line1"></div>
+                <div class="line2"></div>
+                <div class="line3"></div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container" style="margin-top: 100px;">
+        <h2 class="main-heading">CRYPTON 2K25 - Team Registration</h2>
+        
+        <div id="registrationStatus" style="display: none;" class="alert"></div>
+        
+        <div class="registration-form">
+            <div id="selectedProblem" class="selected-problem">
+                Loading selected problem...
+            </div>
+
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="teamNumber">Team Number</label>
+                    <input type="number" class="form-control" id="teamNumber" required min="1">
+                </div>
+                <div class="form-group">
+                    <label for="leaderName">Team Leader Name</label>
+                    <input type="text" class="form-control" id="leaderName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="leaderRegNo">Registration Number</label>
+                    <input type="text" class="form-control" id="leaderRegNo" required>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span>Register Team</span>
+                    <div class="loading-spinner"></div>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Check if a problem was selected
+        document.addEventListener('DOMContentLoaded', async () => {
+            const problemId = localStorage.getItem('selectedProblemId');
+            if (!problemId) {
+                window.location.href = '/crypton-2k25/problem-statements';
+                return;
+            }
+
+            // Fetch the selected problem details
+            try {
+                const response = await fetch('https://owaspkare.vercel.app/api/problems');
+                const data = await response.json();
+                
+                let selectedProblem = null;
+                Object.values(data.data).forEach(problems => {
+                    const found = problems.find(p => p.id === parseInt(problemId));
+                    if (found) selectedProblem = found;
+                });
+
+                if (!selectedProblem) throw new Error('Problem not found');
+
+                document.getElementById('selectedProblem').innerHTML = `
+                    <h4>${selectedProblem.title}</h4>
+                    <p>${selectedProblem.description}</p>
+                    <p>Teams Registered: ${selectedProblem.teams_assigned} / ${selectedProblem.max_teams}</p>
+                `;
+
+                // Check if registration is still open
+                if (selectedProblem.teams_assigned >= selectedProblem.max_teams) {
+                    showError('This problem statement is no longer available for registration.');
+                    document.getElementById('submitBtn').disabled = true;
+                }
+
+            } catch (error) {
+                showError('Failed to load problem details. Please try again.');
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('submitting');
+
+            try {
+                const problemId = localStorage.getItem('selectedProblemId');
+                const response = await fetch('https://owaspkare.vercel.app/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        teamNumber: document.getElementById('teamNumber').value,
+                        leaderName: document.getElementById('leaderName').value,
+                        leaderRegNo: document.getElementById('leaderRegNo').value,
+                        problemStatementId: parseInt(problemId)
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess('Registration successful! Your team number is: ' + data.data.teamNumber);
+                    localStorage.removeItem('selectedProblemId');
+                    setTimeout(() => {
+                        window.location.href = '/crypton-2k25/teams';
+                    }, 3000);
+                } else {
+                    showError(data.message || 'Registration failed. Please try again.');
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                showError('An error occurred. Please try again later.');
+                submitBtn.disabled = false;
+            }
+
+            submitBtn.classList.remove('submitting');
+        });
+
+        function showSuccess(message) {
+            const status = document.getElementById('registrationStatus');
+            status.className = 'alert alert-success';
+            status.textContent = message;
+            status.style.display = 'block';
+        }
+
+        function showError(message) {
+            const status = document.getElementById('registrationStatus');
+            status.className = 'alert alert-danger';
+            status.textContent = message;
+            status.style.display = 'block';
+        }
+
+        // Mobile menu functionality
+        const burger = document.querySelector('.burger');
+        const nav = document.querySelector('.nav-links');
+        const navLinks = document.querySelectorAll('.nav-links li');
+
+        burger.addEventListener('click', () => {
+            nav.classList.toggle('nav-active');
+            
+            navLinks.forEach((link, index) => {
+                if (link.style.animation) {
+                    link.style.animation = '';
+                } else {
+                    link.style.animation = `navLinkFade 0.5s ease forwards ${index / 7 + 0.3}s`;
+                }
+            });
+
+            burger.classList.toggle('toggle');
+        });
+    </script>
+</body>
+</html> 

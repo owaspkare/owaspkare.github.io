@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRYPTON 2K25 - Problem Statements</title>
+    <link rel="stylesheet" href="../../owasp3.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        .problem-card {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .problem-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .problem-title {
+            color: #00ffff;
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 10px;
+        }
+
+        .problem-description {
+            font-family: 'Share Tech Mono', monospace;
+            color: #cccccc;
+            margin-bottom: 15px;
+        }
+
+        .teams-info {
+            font-size: 0.9em;
+            color: #00ffff;
+        }
+
+        .register-btn {
+            background: transparent;
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            padding: 8px 20px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .register-btn:hover {
+            background: #00ffff;
+            color: #000;
+        }
+
+        .register-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .category-title {
+            color: #00ffff;
+            font-family: 'Orbitron', sans-serif;
+            margin: 30px 0 20px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #00ffff;
+            padding-bottom: 10px;
+        }
+
+        #loading {
+            text-align: center;
+            color: #00ffff;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 50px 0;
+        }
+
+        .error-message {
+            color: #ff4444;
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 50px 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="https://owasp.org/"><img src="https://owasp.org/assets/images/logo.png" class="club-poster" /></a>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/#about-college">Home</a></li>
+                <li><a href="/#club-details">OWASP Club</a></li>
+                <li><a href="/events">Events</a></li>
+                <li><a href="/crypton-2k25">Crypton 2K25</a></li>
+                <li><a href="/Euphoria-2025">Tech Forge</a></li>
+            </ul>
+            <div class="burger">
+                <div class="line1"></div>
+                <div class="line2"></div>
+                <div class="line3"></div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container" style="margin-top: 100px;">
+        <h2 class="main-heading">CRYPTON 2K25 - Problem Statements</h2>
+        <div id="loading">Loading problem statements...</div>
+        <div id="problemStatements"></div>
+    </div>
+
+    <script>
+        // Fetch and display problem statements
+        async function fetchProblemStatements() {
+            try {
+                const response = await fetch('https://owaspkare.vercel.app/api/problems');
+                if (!response.ok) throw new Error('Failed to fetch problem statements');
+                
+                const data = await response.json();
+                if (!data.success) throw new Error('API returned error');
+
+                const problemsContainer = document.getElementById('problemStatements');
+                document.getElementById('loading').style.display = 'none';
+
+                // Display problems grouped by category
+                Object.entries(data.data).forEach(([category, problems]) => {
+                    const categorySection = document.createElement('div');
+                    categorySection.innerHTML = `
+                        <h3 class="category-title">${category}</h3>
+                        <div class="row">
+                            ${problems.map(problem => `
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="problem-card">
+                                        <h4 class="problem-title">${problem.title}</h4>
+                                        <p class="problem-description">${problem.description}</p>
+                                        <p class="teams-info">
+                                            Teams Registered: ${problem.teams_assigned} / ${problem.max_teams}
+                                        </p>
+                                        <button 
+                                            class="register-btn"
+                                            onclick="registerForProblem(${problem.id})"
+                                            ${problem.teams_assigned >= problem.max_teams ? 'disabled' : ''}
+                                        >
+                                            ${problem.teams_assigned >= problem.max_teams ? 'Full' : 'Select Problem'}
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    problemsContainer.appendChild(categorySection);
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div class="error-message">
+                        Failed to load problem statements. Please try again later.
+                    </div>
+                `;
+            }
+        }
+
+        // Handle problem selection
+        function registerForProblem(problemId) {
+            // Store the selected problem ID in localStorage
+            localStorage.setItem('selectedProblemId', problemId);
+            // Redirect to the registration form
+            window.location.href = '/crypton-2k25/register';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchProblemStatements();
+
+            // Mobile menu functionality
+            const burger = document.querySelector('.burger');
+            const nav = document.querySelector('.nav-links');
+            const navLinks = document.querySelectorAll('.nav-links li');
+
+            burger.addEventListener('click', () => {
+                nav.classList.toggle('nav-active');
+                
+                navLinks.forEach((link, index) => {
+                    if (link.style.animation) {
+                        link.style.animation = '';
+                    } else {
+                        link.style.animation = `navLinkFade 0.5s ease forwards ${index / 7 + 0.3}s`;
+                    }
+                });
+
+                burger.classList.toggle('toggle');
+            });
+        });
+    </script>
+</body>
+</html> 
